@@ -1,13 +1,9 @@
-// Tambahkan global fetch untuk kompatibilitas GitHub Actions Node 18+
-if (!global.fetch) {
-  global.fetch = (...args) =>
-    import('node-fetch').then(({ default: fetch }) => fetch(...args));
-}
+// scripts/bot.js
+import dotenv from "dotenv";
+import TelegramBot from "node-telegram-bot-api";
+import { checkCookinTokens } from "./check-cookin.js";
 
-require('dotenv').config();
-const TelegramBot = require('node-telegram-bot-api');
-const { checkCookinTokens } = require('./check-cookin');
-
+dotenv.config();
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHAT_ID = process.env.CHAT_ID;
