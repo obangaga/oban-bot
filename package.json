@@ -1,10 +1,12 @@
 {
+  "type": "module",
   "name": "oban-bot",
   "version": "1.0.0",
   "description": "Monitor token baru dari Cookin.fun dan kirim notifikasi ke Telegram",
   "main": "scripts/bot.js",
-  "scripts": {
-    "start": "node scripts/bot.js"
+"scripts": {
+  "start": "node --experimental-fetch scripts/bot.js"
+
   },
   "dependencies": {
   "axios": "^1.6.0",
