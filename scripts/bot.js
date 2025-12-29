@@ -1,4 +1,7 @@
 // scripts/bot.js
+import { fetch as undiciFetch } from "undici";
+if (!global.fetch) global.fetch = undiciFetch;
+
 import dotenv from "dotenv";
 import TelegramBot from "node-telegram-bot-api";
 import { checkCookinTokens } from "./check-cookin.js";
