@@ -1,0 +1,57 @@
+name: Check New Tokens from Cookin.fun
+
+on:
+  schedule:
+    # Jalankan setiap 5 menit
+    - cron: '*/5 * * * *'
+  
+  # Juga bisa di-trigger manual dari GitHub UI
+  workflow_dispatch:
+
+jobs:
+  check-tokens:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v3
+    
+    - name: ⎔ Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 Install dependencies
+      run: npm ci
+    
+    - name: 🔍 Check for new tokens
+      id: check-tokens
+      run: node scripts/check-cookin.js
+      env:
+        # Nanti kita tambahkan token Telegram di sini
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+    
+    - name: 📤 Send to Telegram (jika ada token baru)
+      if: steps.check-tokens.outputs.token_count > 0
+      run: |
+        # Script untuk kirim ke Telegram
+        TOKEN_COUNT="${{ steps.check-tokens.outputs.token_count }}"
+        TOKEN_NAMES="${{ steps.check-tokens.outputs.token_names }}"
+        
+        # Kirim notifikasi ke Telegram
+        curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+          -d "text=🚀 $TOKEN_COUNT new token(s) found!%0A%0A📋 $TOKEN_NAMES%0A%0A⏰ $(date)" \
+          -d "parse_mode=HTML"
+    
+    - name: 📊 Upload tokens data sebagai artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: tokens-data
+        path: tokens.json
+        if-no-files-found: ignore
+    
+    - name: ✅ Complete
+      run: echo "Workflow completed at $(date)"
